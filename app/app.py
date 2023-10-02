@@ -6,3 +6,5 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///occasional_sync.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+CORS(app)
