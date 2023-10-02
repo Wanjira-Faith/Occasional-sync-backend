@@ -24,3 +24,8 @@ class EventNotification(db.Model):
     notification_id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('events.event_id'), nullable=False)
     message = db.Column(db.Text, nullable=False)
+
+class EventAttendee(db.Model):
+    event_attendees_id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('events.event_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
