@@ -4,7 +4,7 @@ db = SQLAlchemy()
 
 class Event(db.Model):
     event_id = db.Column(db.Integer, primary_key=True)
-    organizer_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    organizer_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     poster = db.Column(db.String(255))
     name = db.Column(db.String(100), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
@@ -37,7 +37,7 @@ class User(db.Model):
 
 class EventNotification(db.Model):
     notification_id = db.Column(db.Integer, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey('events.event_id'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.event_id'), nullable=False)
     message = db.Column(db.Text, nullable=False)
 
     # Define a many-to-one relationship with the Event model 
@@ -46,8 +46,8 @@ class EventNotification(db.Model):
 
 class EventAttendee(db.Model):
     event_attendees_id = db.Column(db.Integer, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey('events.event_id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.event_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
 
     # Define a many-to-one relationship with the Event model and user model
     event = db.relationship('Event', backref='event_attendees', lazy=True)
