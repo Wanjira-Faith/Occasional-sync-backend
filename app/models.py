@@ -1,12 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 
 db = SQLAlchemy()
 
 class Event(db.Model):
     event_id = db.Column(db.Integer, primary_key=True)
     organizer_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    poster = db.Column(db.Image)
+    poster = db.Column(db.String(255))
     name = db.Column(db.String(100), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     location = db.Column(db.String(100), nullable=False)
@@ -28,7 +27,6 @@ class User(db.Model):
     username = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now)
 
     # Define a one-to-many relationship with the Event model 
     events = db.relationship('Event', backref='organizer', lazy=True)
