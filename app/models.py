@@ -19,3 +19,8 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now)
+
+class EventNotification(db.Model):
+    notification_id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('events.event_id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
