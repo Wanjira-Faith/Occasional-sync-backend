@@ -10,3 +10,5 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 migrate = Migrate(app, db)
 CORS(app)
+
+db.init_app(app)
