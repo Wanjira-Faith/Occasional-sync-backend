@@ -87,6 +87,60 @@ class UserLogInResource(Resource):
         
 api.add_resource(UserLogInResource,'/login')
 
+# Define a request parser for event creation
+event_parser = reqparse.RequestParser()
+event_parser.add_argument('name', type=str, required=True, help='Event Name is required')
+event_parser.add_argument('date', type=str, required=True, help='Event Date is required')
+event_parser.add_argument('location', type=str, required=True, help='Event Location is required')
+event_parser.add_argument('description', type=str, default='', help='Event Description')
+event_parser.add_argument('capacity', type=int, required=True, help='Event Capacity is required (minimum 1)')
+event_parser.add_argument('poster', type=str, default='', help='Event Poster URL')
+
+class EventListResource(Resource):
+    @jwt_required()
+    def get(self):
+        events = Event.query.all()
+        event_list = []
+
+        for event in events:
+            event_info = {
+                'event_id': event.event_id,
+                'name': event.name,
+                'date': event.date.strftime('%Y-%m-%d %H:%M:%S'),
+                'location': event.location,
+                'description': event.description,
+                'capacity': event.capacity,
+                'poster':event.poster
+            }
+            event_list.append(event_info)
+
+            return jsonify({'events': event_list})
+        
+    @jwt_required()
+    def post(self):
+        current_user_id = get_jwt_identity() 
+
+        args = event_parser.parse_args()
+
+        # Convert the date string to a datetime object
+        date_str = args['date']
+        date_format = '%Y-%m-%d %H:%M:%S'
+        event_date = datetime.strptime(date_str, date_format)
+
+        event = Event(
+            organizer_id=current_user_id,
+            name=args['name'],
+            date=event_date,  
+            location=args['location'],
+            description=args['description'],
+            capacity=args['capacity'],
+            poster=args['poster']  
+        )
+        db.session.add(event)
+        db.session.commit()
+        return {'message': 'Event created successfully'}, 201
+
+api.add_resource(EventListResource, '/events')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
