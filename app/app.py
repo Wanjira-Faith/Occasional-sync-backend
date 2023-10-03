@@ -142,5 +142,28 @@ class EventListResource(Resource):
 
 api.add_resource(EventListResource, '/events')
 
+# Define a request parser for searching events by ID
+reqparse.RequestParser().add_argument('event_id', type=int, required=True)
+
+class EventSearchResource(Resource):
+    def get(self, event_id):
+        event = Event.query.get_(event_id)
+        if event is None:
+            return {'message': 'Event not found'}, 404
+
+        event_info = {
+            'event_id': event.event_id,
+            'name': event.name,
+            'date': event.date.strftime('%Y-%m-%d %H:%M:%S'),
+            'location': event.location,
+            'description': event.description,
+            'capacity': event.capacity,
+            'poster': event.poster
+        }
+
+        return jsonify({'event': event_info})
+
+api.add_resource(EventSearchResource, '/search-events/<int:event_id>')
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
