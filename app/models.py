@@ -1,13 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
 
-event_user_association_table = db.Table('event_user_association',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.user_id')),
-    db.Column('event_id', db.Integer, db.ForeignKey('event.event_id'))
-)
-
-class Event(db.Model):
+class Event(db.Model, SerializerMixin):
     event_id = db.Column(db.Integer, primary_key=True)
     organizer_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     poster = db.Column(db.String(255))
@@ -23,21 +19,7 @@ class Event(db.Model):
     # Define a one-to-many relationship with the EventNotification model
     notifications = db.relationship('EventNotification', backref='event', lazy=True)
 
-    def to_dict(self):
-        return {
-            'event_id': self.event_id,
-            'organizer_id': self.organizer_id,
-            'poster': self.poster,
-            'name': self.name,
-            'date': self.date.isoformat(),
-            'location': self.location,
-            'description': self.description,
-            'capacity': self.capacity,
-            'attendees': [user.to_dict() for user in self.attendees],  # Serialize attendees
-            'notifications': [notification.to_dict() for notification in self.notifications],  # Serialize notifications
-        }
-
-class User(db.Model):
+class User(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
@@ -49,23 +31,8 @@ class User(db.Model):
     # Define a many-to-many relationship with the Event model through EventAttendee 
     events_attended = db.relationship('Event', secondary='event_attendee',  back_populates='attendees', lazy=True)
 
-    def to_dict(self):
-        return {
-            'user_id': self.user_id,
-            'username': self.username,
-            'email': self.email,
-            'events': [event.to_dict() for event in self.events], 
-            'events_attended': [event.to_dict() for event in self.events_attended],  
-        }
-
-class EventNotification(db.Model):
+class EventNotification(db.Model, SerializerMixin):
     notification_id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.event_id'), nullable=False)
     message = db.Column(db.Text, nullable=False)
 
-    def to_dict(self):
-        return {
-            'notification_id': self.notification_id,
-            'event_id': self.event_id,
-            'message': self.message,
-        }
