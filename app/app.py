@@ -205,5 +205,42 @@ class EventNotificationResource(Resource):
 
 api.add_resource(EventNotificationResource, '/event-notifications/<int:notification_id>')
 
+class UserEventAssociationResource(Resource):
+    @jwt_required()
+    def get(self, event_id):
+        event = Event.query.get(event_id)
+        if event is None:
+            return {'message': 'Event not found'}, 404
+
+        attendees = event.attendees
+        attendee_list = [{'user_id': user.user_id, 'username': user.username, 'email': user.email} for user in attendees]
+
+        return jsonify({'event_attendees': attendee_list})
+    
+    @jwt_required()
+    def post(self, event_id):
+        current_user_id = get_jwt_identity()  
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('event_id', type=int, required=True, help='Event ID is required')
+
+        args = parser.parse_args()
+        event_id = args['event_id']
+
+        event = Event.query.get(event_id)
+        if event is None:
+            return {'message': 'Event not found'}, 404
+
+        # Check if the user is already attending the event
+        user = User.query.get(current_user_id)
+        if event in user.events_attended:
+            return {'message': 'User is already attending the event'}, 400
+
+        user.events_attended.append(event)
+        db.session.commit()
+        return {'message': 'User applied to attend the event successfully'}, 201
+
+api.add_resource(UserEventAssociationResource, '/user-event/<int:event_id>')
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
