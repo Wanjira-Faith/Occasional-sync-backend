@@ -68,5 +68,25 @@ class UserRegistrationResource(Resource):
 
 api.add_resource(UserRegistrationResource, '/register')
 
+class UserLogInResource(Resource):
+    def post(self):
+        data = request.get_json()
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+        if not username or not password:
+            return{'message':'username and password required'},400
+        
+        # Check email and password
+        user_by_email = User.query.filter_by(email=email).first()
+        if user_by_email and user_by_email.password == password:
+            access_token = create_access_token(identity=user_by_email.user_id)
+            return {'access_token': access_token}, 200
+
+        return {'message': 'Invalid credentials'}, 401
+        
+api.add_resource(UserLogInResource,'/login')
+
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
