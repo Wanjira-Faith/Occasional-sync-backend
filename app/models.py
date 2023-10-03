@@ -19,7 +19,7 @@ class Event(db.Model, SerializerMixin):
     capacity = db.Column(db.Integer, nullable=False)
 
     # Define a many-to-many relationship with the User model through EventAttendee
-    attendees = db.relationship('User', secondary='event_attendee', back_populates='events_attended', lazy=True)
+    attendees = db.relationship('User', secondary=event_user_association_table, back_populates='events_attended', lazy=True)
 
     # Define a one-to-many relationship with the EventNotification model
     notifications = db.relationship('EventNotification', backref='event', lazy=True)
@@ -34,7 +34,7 @@ class User(db.Model, SerializerMixin):
     events = db.relationship('Event', backref='organizer', lazy=True)
 
     # Define a many-to-many relationship with the Event model through EventAttendee 
-    events_attended = db.relationship('Event', secondary='event_attendee',  back_populates='attendees', lazy=True)
+    events_attended = db.relationship('Event', secondary=event_user_association_table, back_populates='attendees', lazy=True)
 
 class EventNotification(db.Model, SerializerMixin):
     notification_id = db.Column(db.Integer, primary_key=True)
