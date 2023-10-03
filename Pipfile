@@ -12,6 +12,9 @@ flask-cors = "*"
 sqlalchemy = "*"
 faker = "*"
 sqlalchemy-serializer = "*"
+flask-wtf = "*"
+flask-jwt-extended = "*"
+email-validator = "*"
 
 [dev-packages]
 

@@ -18,6 +18,20 @@ class Event(db.Model, SerializerMixin):
     description = db.Column(db.Text)
     capacity = db.Column(db.Integer, nullable=False)
 
+    def serialize(self):
+        return {
+            'event_id': self.event_id,
+            'organizer_id': self.organizer_id,
+            'poster': self.poster,
+            'name': self.name,
+            'date': self.date.strftime('%Y-%m-%d %H:%M:%S'),
+            'location': self.location,
+            'description': self.description,
+            'capacity': self.capacity,
+            'attendees': [user.serialize() for user in self.attendees],
+            'notifications': [notification.serialize() for notification in self.notifications] 
+        }
+
     # Define a many-to-many relationship with the User model through EventAttendee
     attendees = db.relationship('User', secondary=event_user_association_table, back_populates='events_attended', lazy=True)
 
@@ -30,6 +44,15 @@ class User(db.Model, SerializerMixin):
     email = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False)
 
+    def serialize(self):
+        return {
+            'user_id': self.user_id,
+            'username': self.username,
+            'email': self.email,
+            'events': [event.serialize() for event in self.events], 
+            'events_attended': [event.serialize() for event in self.events_attended]  
+        }
+
     # Define a one-to-many relationship with the Event model 
     events = db.relationship('Event', backref='organizer', lazy=True)
 
@@ -41,3 +64,9 @@ class EventNotification(db.Model, SerializerMixin):
     event_id = db.Column(db.Integer, db.ForeignKey('event.event_id'), nullable=False)
     message = db.Column(db.Text, nullable=False)
 
+    def serialize(self):
+        return {
+            'notification_id': self.notification_id,
+            'event_id': self.event_id,
+            'message': self.message
+        }
