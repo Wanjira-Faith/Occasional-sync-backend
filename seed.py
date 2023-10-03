@@ -4,7 +4,7 @@ from models import db, Event, User, EventNotification
 
 fake = Faker()
 
-# Establish an application context
+
 with app.app_context():
     # Clear existing data
     Event.query.delete()
