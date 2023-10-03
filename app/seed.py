@@ -1,6 +1,7 @@
 from app import app
 import random
 from models import db, Event, User, EventNotification
+from faker import Faker
 
 fake = Faker()
 
