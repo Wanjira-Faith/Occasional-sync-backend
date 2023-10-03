@@ -2,6 +2,11 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+event_user_association_table = db.Table('event_user_association',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.user_id')),
+    db.Column('event_id', db.Integer, db.ForeignKey('event.event_id'))
+)
+
 class Event(db.Model):
     event_id = db.Column(db.Integer, primary_key=True)
     organizer_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
@@ -12,15 +17,25 @@ class Event(db.Model):
     description = db.Column(db.Text)
     capacity = db.Column(db.Integer, nullable=False)
 
-    # Define a many-to-one relationship with the User model 
-    organizer = db.relationship('User', backref='events', lazy=True)
-
     # Define a many-to-many relationship with the User model through EventAttendee
-    attendees = db.relationship('User', secondary='event_attendee', backref='events_attended', lazy=True)
+    attendees = db.relationship('User', secondary='event_attendee', back_populates='events_attended', lazy=True)
 
     # Define a one-to-many relationship with the EventNotification model
     notifications = db.relationship('EventNotification', backref='event', lazy=True)
 
+    def to_dict(self):
+        return {
+            'event_id': self.event_id,
+            'organizer_id': self.organizer_id,
+            'poster': self.poster,
+            'name': self.name,
+            'date': self.date.isoformat(),
+            'location': self.location,
+            'description': self.description,
+            'capacity': self.capacity,
+            'attendees': [user.to_dict() for user in self.attendees],  # Serialize attendees
+            'notifications': [notification.to_dict() for notification in self.notifications],  # Serialize notifications
+        }
 
 class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
@@ -32,23 +47,25 @@ class User(db.Model):
     events = db.relationship('Event', backref='organizer', lazy=True)
 
     # Define a many-to-many relationship with the Event model through EventAttendee 
-    events_attended = db.relationship('Event', secondary='event_attendee', backref='attendees', lazy=True)
+    events_attended = db.relationship('Event', secondary='event_attendee',  back_populates='attendees', lazy=True)
 
+    def to_dict(self):
+        return {
+            'user_id': self.user_id,
+            'username': self.username,
+            'email': self.email,
+            'events': [event.to_dict() for event in self.events], 
+            'events_attended': [event.to_dict() for event in self.events_attended],  
+        }
 
 class EventNotification(db.Model):
     notification_id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.event_id'), nullable=False)
     message = db.Column(db.Text, nullable=False)
 
-    # Define a many-to-one relationship with the Event model 
-    event = db.relationship('Event', backref='notifications', lazy=True)
-
-
-class EventAttendee(db.Model):
-    event_attendees_id = db.Column(db.Integer, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.event_id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
-
-    # Define a many-to-one relationship with the Event model and user model
-    event = db.relationship('Event', backref='event_attendees', lazy=True)
-    user = db.relationship('User', backref='user_attendees', lazy=True)
+    def to_dict(self):
+        return {
+            'notification_id': self.notification_id,
+            'event_id': self.event_id,
+            'message': self.message,
+        }
