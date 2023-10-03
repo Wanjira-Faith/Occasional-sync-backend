@@ -35,5 +35,38 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Length(max=100)])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=3)])
 
+class UserRegistrationResource(Resource):
+    def post(self):
+        data = request.get_json()
+        form = RegistrationForm(data=data)
+
+        if form.validate():
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+
+            if User.query.filter(User.username == username).first() is not None:
+                return {'message': 'Username already exists'}, 400
+
+            try:
+                # Use email_validator to validate the email address
+                validate_email(email)
+            except EmailNotValidError as e:
+                return {'message': 'Invalid email address'}, 400
+
+            new_user = User(username=username, email=email, password=password)
+            db.session.add(new_user)
+            db.session.commit()
+            access_token = create_access_token(identity=new_user.user_id)
+
+            return {
+                'message': "User registered successfully",
+                'access_token': access_token
+            }, 201
+        else:
+            return {'message': 'Validation errors', 'errors': form.errors}, 400
+
+api.add_resource(UserRegistrationResource, '/register')
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
