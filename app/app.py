@@ -165,5 +165,45 @@ class EventSearchResource(Resource):
 
 api.add_resource(EventSearchResource, '/search-events/<int:event_id>')
 
+# Request parser for event notification creation
+reqparse.RequestParser().add_argument('event_id', type=int, required=True, help='Event ID is required')
+reqparse.RequestParser().add_argument('message', type=str, required=True, help='Notification message is required')
+
+# Request parser for updating event notification
+reqparse.RequestParser().add_argument('message', type=str, required=True, help='New message is required for update')
+
+# Resource class for EventNotification
+class EventNotificationResource(Resource):
+    @jwt_required()
+    def delete(self, notification_id):
+        notification = EventNotification.query.get(notification_id)
+        if notification is None:
+            return {'message': 'Event notification not found'}, 404
+
+        db.session.delete(notification)
+        db.session.commit()
+        return {'message': 'Event notification deleted successfully'}
+    
+    @jwt_required()
+    def patch(self, notification_id):
+        data = reqparse.RequestParser().parse_args()
+        new_message = data['message']
+
+        notification = EventNotification.query.get(notification_id)
+        if notification is None:
+            return {'message': 'Event notification not found'}, 404
+
+        # Update the message
+        notification.message = new_message
+        db.session.commit()
+
+        return {'message': 'Event notification updated successfully', 'updated_notification': {
+            'notification_id': notification.notification_id,
+            'event_id': notification.event_id,
+            'message': notification.message
+        }}
+
+api.add_resource(EventNotificationResource, '/event-notifications/<int:notification_id>')
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
