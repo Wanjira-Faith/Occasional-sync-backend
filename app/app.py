@@ -100,21 +100,9 @@ class EventListResource(Resource):
     @jwt_required()
     def get(self):
         events = Event.query.all()
-        event_list = []
+        event_list = [event.serialize() for event in events] 
 
-        for event in events:
-            event_info = {
-                'event_id': event.event_id,
-                'name': event.name,
-                'date': event.date.strftime('%Y-%m-%d %H:%M:%S'),
-                'location': event.location,
-                'description': event.description,
-                'capacity': event.capacity,
-                'poster':event.poster
-            }
-            event_list.append(event_info)
-
-            return jsonify({'events': event_list})
+        return jsonify({'events': event_list})
         
     @jwt_required()
     def post(self):
@@ -151,15 +139,7 @@ class EventSearchResource(Resource):
         if event is None:
             return {'message': 'Event not found'}, 404
 
-        event_info = {
-            'event_id': event.event_id,
-            'name': event.name,
-            'date': event.date.strftime('%Y-%m-%d %H:%M:%S'),
-            'location': event.location,
-            'description': event.description,
-            'capacity': event.capacity,
-            'poster': event.poster
-        }
+        event_info = event.serialize()
 
         return jsonify({'event': event_info})
 
@@ -197,11 +177,9 @@ class EventNotificationResource(Resource):
         notification.message = new_message
         db.session.commit()
 
-        return {'message': 'Event notification updated successfully', 'updated_notification': {
-            'notification_id': notification.notification_id,
-            'event_id': notification.event_id,
-            'message': notification.message
-        }}
+        updated_notification = notification.serialize()  
+
+        return {'message': 'Event notification updated successfully', 'updated_notification': updated_notification}
 
 api.add_resource(EventNotificationResource, '/event-notifications/<int:notification_id>')
 
@@ -213,7 +191,7 @@ class UserEventAssociationResource(Resource):
             return {'message': 'Event not found'}, 404
 
         attendees = event.attendees
-        attendee_list = [{'user_id': user.user_id, 'username': user.username, 'email': user.email} for user in attendees]
+        attendee_list = [user.serialize() for user in attendees] 
 
         return jsonify({'event_attendees': attendee_list})
     
