@@ -126,7 +126,7 @@ class EventListResource(Resource):
         )
         db.session.add(event)
         db.session.commit()
-        return {'message': 'Event created successfully'}, 201
+        return {'message': 'Event created successfully', 'event': event.serialize()}, 201
 
 api.add_resource(EventListResource, '/events')
 
@@ -216,7 +216,7 @@ class UserEventAssociationResource(Resource):
 
         user.events_attended.append(event)
         db.session.commit()
-        return {'message': 'User applied to attend the event successfully'}, 201
+        return {'message': 'User applied to attend the event successfully', 'user': user.serialize()}, 201
 
 api.add_resource(UserEventAssociationResource, '/user-event/<int:event_id>')
 
