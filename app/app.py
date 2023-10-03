@@ -30,5 +30,10 @@ CORS(app)
 db.init_app(app)
 api = Api(app)
 
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=4, max=100)])
+    email = StringField('Email', validators=[DataRequired(), Length(max=100)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=3)])
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
