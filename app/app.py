@@ -135,7 +135,7 @@ reqparse.RequestParser().add_argument('event_id', type=int, required=True)
 
 class EventSearchResource(Resource):
     def get(self, event_id):
-        event = Event.query.get_(event_id)
+        event = Event.query.get(event_id)
         if event is None:
             return {'message': 'Event not found'}, 404
 
@@ -145,12 +145,6 @@ class EventSearchResource(Resource):
 
 api.add_resource(EventSearchResource, '/search-events/<int:event_id>')
 
-# Request parser for event notification creation
-reqparse.RequestParser().add_argument('event_id', type=int, required=True, help='Event ID is required')
-reqparse.RequestParser().add_argument('message', type=str, required=True, help='Notification message is required')
-
-# Request parser for updating event notification
-reqparse.RequestParser().add_argument('message', type=str, required=True, help='New message is required for update')
 
 # Resource class for EventNotification
 class EventNotificationResource(Resource):
@@ -166,21 +160,22 @@ class EventNotificationResource(Resource):
     
     @jwt_required()
     def patch(self, notification_id):
-        data = reqparse.RequestParser().parse_args()
-        new_message = data['message']
+        parser = reqparse.RequestParser()
+        parser.add_argument('message', type=str, required=True, help='New message is required for update')
+        data = parser.parse_args()
 
-        notification = EventNotification.query.get(notification_id)
-        if notification is None:
+        # Get the event notification to be updated.
+        event_notification = EventNotification.query.get(notification_id)
+        if event_notification is None:
             return {'message': 'Event notification not found'}, 404
 
-        # Update the message
-        notification.message = new_message
+        # Update the event notification message.
+        event_notification.message = data['message']
         db.session.commit()
 
-        updated_notification = notification.serialize()  
-
-        return {'message': 'Event notification updated successfully', 'updated_notification': updated_notification}
-
+        # Return the updated event notification.
+        return event_notification.serialize(), 200
+    
 api.add_resource(EventNotificationResource, '/event-notifications/<int:notification_id>')
 
 class UserEventAssociationResource(Resource):

@@ -27,9 +27,7 @@ class Event(db.Model, SerializerMixin):
             'date': self.date.strftime('%Y-%m-%d %H:%M:%S'),
             'location': self.location,
             'description': self.description,
-            'capacity': self.capacity,
-            'attendees': [user.serialize() for user in self.attendees],
-            'notifications': [notification.serialize() for notification in self.notifications] 
+            'capacity': self.capacity
         }
 
     # Define a many-to-many relationship with the User model through EventAttendee
@@ -48,9 +46,7 @@ class User(db.Model, SerializerMixin):
         return {
             'user_id': self.user_id,
             'username': self.username,
-            'email': self.email,
-            'events': [event.serialize() for event in self.events], 
-            'events_attended': [event.serialize() for event in self.events_attended]  
+            'email': self.email
         }
 
     # Define a one-to-many relationship with the Event model 
