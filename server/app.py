@@ -97,14 +97,14 @@ event_parser.add_argument('capacity', type=int, required=True, help='Event Capac
 event_parser.add_argument('poster', type=str, default='', help='Event Poster URL')
 
 class EventListResource(Resource):
-    
+    @jwt_required()
     def get(self):
         events = Event.query.all()
         event_list = [event.serialize() for event in events] 
 
         return jsonify({'events': event_list})
         
-    
+    @jwt_required()
     def post(self):
         current_user_id = get_jwt_identity() 
 
