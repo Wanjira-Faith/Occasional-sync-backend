@@ -130,7 +130,7 @@ with app.app_context():
 
     if __name__ == '__main__':
         num_users = 10
-        num_events = 10  # Use the number of event data entries
+        num_events = 10  
         num_organizers = 5
         num_notifications = 10
 
