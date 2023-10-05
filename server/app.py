@@ -19,7 +19,7 @@ app.config['WTF_CSRF_ENABLED'] = False
 
 jwt = JWTManager(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://event_db_bkl9_user:OFEmciW01SRf8lCqwF2iqGRoNjsIQn3C@dpg-ckes9avs0fgc73cbt1ng-a.oregon-postgresql.render.com/event_db_bkl9'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://event_db_bkl9_user:OFEmciW01SRf8lCqwF2iqGRoNjsIQn3C@dpg-ckes9avs0fgc73cbt1ng-a.oregon-postgres.render.com/event_db_bkl9'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.json.compact = False
