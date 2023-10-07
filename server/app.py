@@ -106,7 +106,6 @@ class EventListResource(Resource):
         
     # @jwt_required()
     def post(self):
-        current_user_id = get_jwt_identity() 
 
         args = event_parser.parse_args()
 
@@ -192,7 +191,6 @@ class UserEventAssociationResource(Resource):
     
     # @jwt_required()
     def post(self, event_id):
-        current_user_id = get_jwt_identity()  
 
         parser = reqparse.RequestParser()
         parser.add_argument('event_id', type=int, required=True, help='Event ID is required')
