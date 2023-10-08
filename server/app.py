@@ -97,14 +97,14 @@ event_parser.add_argument('capacity', type=int, required=True, help='Event Capac
 event_parser.add_argument('poster', type=str, default='', help='Event Poster URL')
 
 class EventListResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self):
         events = Event.query.all()
         event_list = [event.serialize() for event in events] 
 
         return jsonify({'events': event_list})
         
-    # @jwt_required()
+    @jwt_required()
     def post(self):
         current_user_id = get_jwt_identity() 
 
@@ -112,7 +112,7 @@ class EventListResource(Resource):
 
         # Convert the date string to a datetime object
         date_str = args['date']
-        date_format = '%Y-%m-%d %H:%M:%S'
+        date_format = '%Y-%m-%d'
         event_date = datetime.strptime(date_str, date_format)
 
         event = Event(
@@ -148,7 +148,7 @@ api.add_resource(EventSearchResource, '/search-events/<int:event_id>')
 
 # Resource class for EventNotification
 class EventNotificationResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def delete(self, notification_id):
         notification = EventNotification.query.get(notification_id)
         if notification is None:
@@ -158,7 +158,7 @@ class EventNotificationResource(Resource):
         db.session.commit()
         return {'message': 'Event notification deleted successfully'}
     
-    # @jwt_required()
+    @jwt_required()
     def patch(self, notification_id):
         parser = reqparse.RequestParser()
         parser.add_argument('message', type=str, required=True, help='New message is required for update')
@@ -179,7 +179,7 @@ class EventNotificationResource(Resource):
 api.add_resource(EventNotificationResource, '/event-notifications/<int:notification_id>')
 
 class UserEventAssociationResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self, event_id):
         event = Event.query.get(event_id)
         if event is None:
@@ -190,7 +190,7 @@ class UserEventAssociationResource(Resource):
 
         return jsonify({'event_attendees': attendee_list})
     
-    # @jwt_required()
+    @jwt_required()
     def post(self, event_id):
         current_user_id = get_jwt_identity()  
 
