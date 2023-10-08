@@ -115,7 +115,7 @@ class EventListResource(Resource):
         event_date = datetime.strptime(date_str, date_format)
 
         event = Event(
-            organizer_id=current_user_id,
+            organizer_id=get_jwt_identity(),
             name=args['name'],
             date=event_date,  
             location=args['location'],
