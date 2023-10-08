@@ -106,7 +106,6 @@ class EventListResource(Resource):
         
     @jwt_required()
     def post(self):
-        current_user_id = get_jwt_identity() 
 
         args = event_parser.parse_args()
 
@@ -116,7 +115,7 @@ class EventListResource(Resource):
         event_date = datetime.strptime(date_str, date_format)
 
         event = Event(
-            organizer_id=current_user_id,
+            organizer_id=get_jwt_identity(),
             name=args['name'],
             date=event_date,  
             location=args['location'],
